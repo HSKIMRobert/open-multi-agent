@@ -14,7 +14,7 @@
 
 <p align="center">
   <strong>给一个目标，自动得到任务 DAG。</strong><br/>
-  原生 TypeScript 多智能体编排，3 个运行时依赖。
+  原生 TypeScript 多智能体编排。
 </p>
 
 <p align="center">
@@ -23,7 +23,6 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.6-blue" alt="TypeScript"></a>
   <a href="https://codecov.io/gh/open-multi-agent/open-multi-agent"><img src="https://codecov.io/gh/open-multi-agent/open-multi-agent/graph/badge.svg" alt="codecov"></a>
-  <a href="https://github.com/open-multi-agent/open-multi-agent/blob/main/packages/core/package.json"><img src="https://img.shields.io/badge/runtime_deps-3-brightgreen" alt="runtime deps"></a>
   <a href="https://github.com/open-multi-agent/open-multi-agent/stargazers"><img src="https://img.shields.io/github/stars/open-multi-agent/open-multi-agent" alt="GitHub stars"></a>
   <a href="https://github.com/open-multi-agent/open-multi-agent/network/members"><img src="https://img.shields.io/github/forks/open-multi-agent/open-multi-agent" alt="GitHub forks"></a>
 </p>
@@ -40,7 +39,7 @@
 
 <br />
 
-`open-multi-agent` 是面向 TypeScript 后端的多智能体编排框架。给定一个目标，协调者 agent 会将其拆解为任务 DAG，并行执行独立任务，合成最终结果。仅 3 个运行时依赖，可直接嵌入任意现有 Node.js 后端。
+`open-multi-agent` 是面向 TypeScript 后端的多智能体编排框架。给定一个目标，协调者 agent 会将其拆解为任务 DAG，并行执行独立任务，合成最终结果。可直接嵌入任意现有 Node.js 后端。
 
 > **工程师只描述目标，不画任务图。**
 
@@ -136,6 +135,8 @@ Tokens: 12847 output tokens
 | 单智能体 | `runAgent()` | 一个智能体，一个提示词，最简入口 | [`basics/single-agent`](examples/basics/single-agent.ts) |
 | 自动编排团队 | `runTeam()` | 给一个目标，框架自动规划和执行 | [`basics/team-collaboration`](examples/basics/team-collaboration.ts) |
 | 显式任务管线 | `runTasks()` | 你自己定义任务图和分配 | [`basics/task-pipeline`](examples/basics/task-pipeline.ts) |
+
+对需要严格把关的回答，`runConsensus()` 跑一个 proposer→judge 校验循环（可选的按任务 `verify` 钩子）。见 [Consensus](https://github.com/open-multi-agent/open-multi-agent/blob/main/docs/consensus.md)。
 
 不执行 agent，只预览协调者拆出的任务 DAG；也可以把这份计划固定下来，之后无需再次调用协调者就重放同一张图：
 
@@ -284,14 +285,14 @@ await orchestrator.runTeam(team, goal, {
 | 你的需求 | 选 |
 |----------|----|
 | 固定的生产拓扑 + 成熟的 checkpoint | LangGraph JS |
-| 显式 Supervisor + 手写 workflow | Mastra |
+| 全栈平台，workflow 手工连 | Mastra |
 | Python 栈 + 成熟多智能体生态 | CrewAI |
 | AI 应用工具集，广泛 provider 支持 | Vercel AI SDK |
 | **TypeScript + 一句话从目标到结果，自动拆任务** | **open-multi-agent** |
 
 **对比 LangGraph JS。** LangGraph 把声明式图（节点、边、条件路由）编译成可调用对象。`open-multi-agent` 是 Coordinator 在运行时把目标拆成任务 DAG，再自动并行无依赖项。终点一样（编排执行），方向相反：LangGraph 图优先，OMA 目标优先。
 
-**对比 Mastra。** 两者都是原生 TypeScript。Mastra 的 Supervisor 模式要你手接 agent 和 workflow；OMA 的 Coordinator 在运行时从目标字符串自动接好。如果流程已经明确，Mastra 的显式控制更有优势；如果不想每一步都自己写，OMA 一个 `runTeam(team, goal)` 调用即可。
+**对比 Mastra。** 两者都是原生 TypeScript，区别在谁来驱动编排。Mastra 要你手工连图；OMA 是目标驱动的：把目标交给 Coordinator，它在运行时自动构建任务 DAG，让编排随目标自适应，而不是跑一张你一步步连好的图。`runTeam(team, goal)` 一行搞定。
 
 **对比 CrewAI。** CrewAI 是 Python 阵营成熟的多智能体方案。OMA 面向 TypeScript 后端，3 个运行时依赖，直接嵌入 Node.js。编排能力大致持平，按语言栈选。
 
@@ -411,6 +412,7 @@ await oma.runAgent(
 - [Checkpoint & resume](https://github.com/open-multi-agent/open-multi-agent/blob/main/docs/checkpoint.md) — 可选的按运行快照/恢复，跑在任意 `MemoryStore` 上；崩溃、重启后可续跑。
 - [上下文管理](https://github.com/open-multi-agent/open-multi-agent/blob/main/docs/context-management.md) — 滑动窗口、摘要、压缩、自定义压缩器。
 - [CLI](https://github.com/open-multi-agent/open-multi-agent/blob/main/docs/cli.md) — 面向 shell 和 CI 的 JSON-first `oma` 命令行。
+- [Consensus](https://github.com/open-multi-agent/open-multi-agent/blob/main/docs/consensus.md) — `runConsensus` proposer→judge 原语、按任务的 `verify` 钩子，以及预算不变量。
 - [模型路由](https://github.com/open-multi-agent/open-multi-agent/blob/main/docs/model-routing.md) — 可选的 `modelRouting` 策略：按 phase / agent / role / priority / leaf 匹配，first match wins。
 
 ## 参与贡献
