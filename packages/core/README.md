@@ -384,9 +384,9 @@ See [docs/providers.md](https://github.com/open-multi-agent/open-multi-agent/blo
 
 ### Dependencies
 
-Installing `@open-multi-agent/core` pulls in three runtime dependencies: `@anthropic-ai/sdk`, `openai`, and `zod`. That is the entire core: Anthropic, OpenAI, and every OpenAI-compatible endpoint run on these three alone.
+At present, `@open-multi-agent/core` directly installs `@anthropic-ai/sdk`, `openai`, and `zod`; this is an implementation detail, not a fixed dependency-count policy. Anthropic, OpenAI, and every OpenAI-compatible endpoint use those packages today.
 
-Everything else is an opt-in peer dependency you install only when you reach for it. Each loads lazily, so a project that never uses one never installs it.
+Other provider integrations are opt-in peer dependencies that load lazily, so a project that never uses one never installs it. OpenTelemetry integration is a separately installable package: OTel APIs, SDKs, semantic-convention mappings, and exporter integrations live in `@open-multi-agent/otel`, so importing or running core does not require OpenTelemetry.
 
 | Capability | Install | Trigger |
 |------------|---------|---------|
@@ -394,6 +394,7 @@ Everything else is an opt-in peer dependency you install only when you reach for
 | Bedrock provider | `npm i @aws-sdk/client-bedrock-runtime` | `provider: 'bedrock'` |
 | MCP tools | `npm i @modelcontextprotocol/sdk` | `connectMCPTools()` |
 | Vercel AI SDK bridge | `npm i ai @ai-sdk/<provider>` | `new AISdkAdapter(...)` |
+| OpenTelemetry traces | `npm i @open-multi-agent/otel` plus your application-selected OTel SDK/exporter | `createOtelTraceSink(...)` |
 
 ### Vercel AI SDK (optional)
 
