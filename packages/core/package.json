@@ -25,6 +25,10 @@
       "types": "./dist/observability/index.d.ts",
       "import": "./dist/observability/index.js"
     },
+    "./observability/file": {
+      "types": "./dist/observability/file.d.ts",
+      "import": "./dist/observability/file.js"
+    },
     "./acp": {
       "types": "./dist/acp.d.ts",
       "import": "./dist/acp.js"
