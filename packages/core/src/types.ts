@@ -319,6 +319,12 @@ export interface LLMResponse {
 export interface StreamEvent {
   readonly type: 'text' | 'reasoning' | 'tool_use' | 'tool_result' | 'loop_detected' | 'budget_exceeded' | 'done' | 'error'
   readonly data: unknown
+  /**
+   * Normalized failure metadata for an `error` event when its source is known.
+   * This lets orchestrators distinguish a provider failure from a callback or
+   * framework failure without inferring the source from the error text.
+   */
+  readonly errorInfo?: StructuredTraceError
 }
 
 // ---------------------------------------------------------------------------
@@ -1050,6 +1056,13 @@ export interface ModelRouteConfig {
   readonly apiKey?: string
   /** AWS region selected for Bedrock routes. */
   readonly region?: string
+  /**
+   * Ordered fallback routes to try on retryable provider errors.
+   *
+   * The first entry becomes active on the next retry after the primary route
+   * fails; later retries advance through the list in order. Empty by default.
+   */
+  readonly fallback?: readonly ModelRouteConfig[]
 }
 
 /** Deterministic, predicate-free route selector for a model routing rule. */
